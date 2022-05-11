@@ -501,7 +501,7 @@ const branchHandler = async ( context, octokit, config ) => {
 	const { owner, repo } = context.repo;
 
 	debug(
-		`releaseAutomation: Creating release pull request in [${ owner }/${ repo }] for ${ context.payload.ref }`
+		`releaseAutomation: Creating release pull request 123 in [${ owner }/${ repo }] for ${ context.payload.ref }`
 	);
 
 	const prCreated = await octokit.pulls.create( {
@@ -516,6 +516,8 @@ const branchHandler = async ( context, octokit, config ) => {
 		debug( `releaseAutomation: Creation of pull request failed.` );
 		return;
 	}
+
+	debug(JSON.stringify( prCreated ));
 
 	// Add initial Action checklist as comment.
 	const commentBody = lineBreak(
