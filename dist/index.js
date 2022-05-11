@@ -535,11 +535,13 @@ const branchHandler = async ( context, octokit, config ) => {
 	const updatedReadmeContentBuffer = new Buffer.from( insertNewChangelog( readmeContents, changelog ), 'utf-8' );
 	const updatedReadmeContent = updatedReadmeContentBuffer.toString( 'base64' );
 
+	const readmeSha = readmeResponse.data.sha;
 	const updatedReadmeCommit = await octokit.repos.createOrUpdateFileContents({
 		...context.repo,
 		message: 'Update changelog in readme.txt',
 		path: 'readme.txt',
 		content: updatedReadmeContent,
+		sha: readmeSha,
 	});
 	debug( JSON.stringify( updatedReadmeCommit ) );
 
