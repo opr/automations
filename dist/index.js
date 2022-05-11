@@ -384,7 +384,7 @@ const {
  */
 
 const insertNewChangelogEntry = ( contents, changelog ) => {
-	const regex = /== Changelog ==\n\n/;
+	const regex = /== Changelog ==\n/;
 	return contents.replace( regex, `== Changelog ==\n\n${ changelog }`);
 }
 /**
