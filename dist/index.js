@@ -518,7 +518,7 @@ const branchHandler = async ( context, octokit, config ) => {
 	}
 
 	const emptyCommitSha = prCreated.data.head;
-	octokit.createCommit({
+	await octokit.git.createCommit({
 		...context.repo,
 		message: "Update changelog in readme.txt",
 		tree: emptyCommitSha,
