@@ -383,6 +383,11 @@ const {
  * @typedef {import('../../typedefs').ReleaseConfig} ReleaseConfig
  */
 
+const insertNewChangelog = ( contents, changelog ) => {
+	const regex = /== Changelog ==\n/;
+	contents.replace( regex, `== Changelog ==\n${ changelog }`);
+	return contents;
+}
 /**
  * @param {GitHubContext} context
  * @param {GitHub} octokit
@@ -517,16 +522,20 @@ const branchHandler = async ( context, octokit, config ) => {
 		return;
 	}
 
-	const emptyCommitSha = prCreated.data.head.sha;
-	const emptyCommitTreeSha = await octokit.git.getCommit( {
+	const readmeContents = await octokit.repos.getContent({
 		...context.repo,
-		commit_sha: emptyCommitSha,
-	} )
+		path: 'readme.txt',
+	});
 
-	await octokit.git.createCommit({
+	const newContents = insertNewChangelog( readmeContents, changelog );
+
+	debug( readmeContents.data.content );
+
+	await octokit.git.createOrUpdateFileContents({
 		...context.repo,
-		message: "Update changelog in readme.txt",
-		tree: emptyCommitTreeSha.data.tree.sha,
+		message: 'Update changelog in readme.txt',
+		path: 'readme.txt',
+		content: atob( newContents ),
 	});
 
 	// Add initial Action checklist as comment.
