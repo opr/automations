@@ -385,8 +385,7 @@ const {
 
 const insertNewChangelog = ( contents, changelog ) => {
 	const regex = /== Changelog ==\n/;
-	contents.replace( regex, `== Changelog ==\n${ changelog }`);
-	return contents;
+	return contents.replace( regex, `== Changelog ==\n${ changelog }`);
 }
 /**
  * @param {GitHubContext} context
