@@ -542,6 +542,7 @@ const branchHandler = async ( context, octokit, config ) => {
 		path: 'readme.txt',
 		content: updatedReadmeContent,
 		sha: readmeSha,
+		branch: context.payload.ref,
 	});
 	debug( JSON.stringify( updatedReadmeCommit ) );
 
