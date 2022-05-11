@@ -517,7 +517,12 @@ const branchHandler = async ( context, octokit, config ) => {
 		return;
 	}
 
-	debug(JSON.stringify( prCreated ));
+	const emptyCommitSha = prCreated.data.head;
+	octokit.rest.git.createCommit({
+		...context.repo,
+		message: "Update changelog in readme.txt",
+		tree: emptyCommitSha,
+	})
 
 	// Add initial Action checklist as comment.
 	const commentBody = lineBreak(
