@@ -526,10 +526,8 @@ const branchHandler = async ( context, octokit, config ) => {
 		...context.repo,
 		path: 'readme.txt',
 	});
-
-	const newContents = insertNewChangelog( readmeContents, changelog );
-
 	debug( readmeContents.data.content );
+	const newContents = insertNewChangelog( readmeContents, changelog );
 
 	await octokit.git.createOrUpdateFileContents({
 		...context.repo,
