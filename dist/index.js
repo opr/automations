@@ -383,9 +383,9 @@ const {
  * @typedef {import('../../typedefs').ReleaseConfig} ReleaseConfig
  */
 
-const insertNewChangelog = ( contents, changelog ) => {
+const insertNewChangelogEntry = ( contents, changelog ) => {
 	const regex = /== Changelog ==\n/;
-	return contents.replace( regex, `== Changelog ==\n${ changelog }`);
+	return contents.replace( regex, `== Changelog ==\n\n${ changelog }`);
 }
 /**
  * @param {GitHubContext} context
@@ -526,12 +526,17 @@ const branchHandler = async ( context, octokit, config ) => {
 		path: 'readme.txt',
 	});
 
-	// Content comes from GH API in base64.
+	if ( ! readmeResponse ) {
+		debug( `releaseAutomation: Could not read readme.txt file from repository.` );
+		return;
+	}
+
+	// Content comes from GH API in base64 so convert it to utf-8 string.
 	const readmeBuffer = new Buffer.from( readmeResponse.data.content, 'base64' );
 	const readmeContents = readmeBuffer.toString( 'utf-8' );
 
 	// Need to convert back to base64 to write to the repo.
-	const updatedReadmeContentBuffer = new Buffer.from( insertNewChangelog( readmeContents, changelog ), 'utf-8' );
+	const updatedReadmeContentBuffer = new Buffer.from( insertNewChangelogEntry( readmeContents, changelog ), 'utf-8' );
 	const updatedReadmeContent = updatedReadmeContentBuffer.toString( 'base64' );
 
 	const readmeSha = readmeResponse.data.sha;
@@ -543,7 +548,11 @@ const branchHandler = async ( context, octokit, config ) => {
 		sha: readmeSha,
 		branch: context.payload.ref,
 	});
-	debug( JSON.stringify( updatedReadmeCommit ) );
+
+	if ( ! updatedReadmeCommit ) {
+		debug( `releaseAutomation: Automatic update of readme failed.` );
+		return;
+	}
 
 	// Add initial Action checklist as comment.
 	const commentBody = lineBreak(
