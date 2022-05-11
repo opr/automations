@@ -528,19 +528,20 @@ const branchHandler = async ( context, octokit, config ) => {
 	});
 
 	// Content comes from GH API in base64.
-	const readmeBuffer = new Buffer( readmeResponse.data.content, 'base64' );
+	const readmeBuffer = new Buffer.from( readmeResponse.data.content, 'base64' );
 	const readmeContents = readmeBuffer.toString( 'utf-8' );
 
 	// Need to convert back to base64 to write to the repo.
-	const updatedReadmeContentBuffer = new Buffer( insertNewChangelog( readmeContents, changelog ), 'utf-8' );
+	const updatedReadmeContentBuffer = new Buffer.from( insertNewChangelog( readmeContents, changelog ), 'utf-8' );
 	const updatedReadmeContent = updatedReadmeContentBuffer.toString( 'base64' );
 
-	await octokit.git.createOrUpdateFileContents({
+	const updatedReadmeCommit = await octokit.repos.createOrUpdateFileContents({
 		...context.repo,
 		message: 'Update changelog in readme.txt',
 		path: 'readme.txt',
 		content: updatedReadmeContent,
 	});
+	debug( JSON.stringify( updatedReadmeCommit ) );
 
 	// Add initial Action checklist as comment.
 	const commentBody = lineBreak(
