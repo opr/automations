@@ -526,14 +526,18 @@ const branchHandler = async ( context, octokit, config ) => {
 		...context.repo,
 		path: 'readme.txt',
 	});
-	debug( readmeContents.data.content );
-	const newContents = insertNewChangelog( readmeContents, changelog );
+
+	// Content comes from GH API in base64.
+	const asciiReadmeContents = btoa( readmeContents.data.content );
+
+	// Need to convert back to base64 to write to the repo.
+	const base64UpdatedReadmeContent = atob( insertNewChangelog( asciiReadmeContents, changelog ) );
 
 	await octokit.git.createOrUpdateFileContents({
 		...context.repo,
 		message: 'Update changelog in readme.txt',
 		path: 'readme.txt',
-		content: atob( newContents ),
+		content: base64UpdatedReadmeContent,
 	});
 
 	// Add initial Action checklist as comment.
